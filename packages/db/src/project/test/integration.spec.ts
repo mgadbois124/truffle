@@ -262,6 +262,14 @@ const AddContracts = gql`
             length
           }
         }
+        generatedSources {
+          forCallBytecode {
+            name
+          }
+          forCreateBytecode {
+            name
+          }
+        }
       }
     }
   }
@@ -312,6 +320,20 @@ const GetWorkspaceContract = gql`
         }
         ast {
           json
+        }
+      }
+      generatedSources {
+        forCallBytecode {
+          name
+          ast {
+            json
+          }
+          id
+          language
+          contents
+        }
+        forCreateBytecode {
+          name
         }
       }
       compilation {
@@ -785,7 +807,8 @@ describe("Compilation", () => {
               compiler: { version }
             },
             createBytecode,
-            callBytecode
+            callBytecode,
+            generatedSources
           }
         }
       } = await db.execute(GetWorkspaceContract, contractIds[index]);
@@ -794,6 +817,25 @@ describe("Compilation", () => {
         artifacts[index].bytecode
       );
       expect(createBytecode.bytes).toEqual(artifactsCreateBytecode.bytes);
+
+      //only test generatedSources for solc compiled contracts
+      if (name !== "VyperStorage") {
+        expect(generatedSources.forCallBytecode[0].name).toEqual(
+          artifacts[index].deployedGeneratedSources[0].name
+        );
+        expect(generatedSources.forCallBytecode[0].ast.json).toEqual(
+          JSON.stringify(artifacts[index].deployedGeneratedSources[0].ast)
+        );
+        expect(generatedSources.forCallBytecode[0].id).toEqual(
+          artifacts[index].deployedGeneratedSources[0].id
+        );
+        expect(generatedSources.forCallBytecode[0].contents).toEqual(
+          artifacts[index].deployedGeneratedSources[0].contents
+        );
+        expect(generatedSources.forCallBytecode[0].language).toEqual(
+          artifacts[index].deployedGeneratedSources[0].language
+        );
+      }
 
       const artifactsCallBytecode = Shims.LegacyToNew.forBytecode(
         artifacts[index].deployedBytecode
