@@ -51,6 +51,8 @@ declare namespace _DataModel {
   type NetworkGenealogyInput = any;
   type CandidateSearchResult = any;
   type ImmutableReferenceInput = any;
+  type GeneratedSourcesInput = any;
+  type GeneratedSources = any;
 
   type Query = any;
   type Mutation = any;
