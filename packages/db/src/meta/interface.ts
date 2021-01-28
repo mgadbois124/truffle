@@ -39,18 +39,8 @@ export const forAttachAndSchema = <C extends Collections>(options: {
       // ConnectOptions case
       attachOptions = config;
     } else {
-<<<<<<< HEAD
       const truffleDataDirectory = Config.getTruffleDataDirectory();
-      options = {
-=======
-      const configStore = new Configstore(
-        "truffle",
-        {},
-        { globalConfigPath: true }
-      );
-      const truffleDataDirectory = path.dirname(configStore.path);
       attachOptions = {
->>>>>>> 30c2396a2959270222cfcc42bc34464767061410
         directory: truffleDataDirectory,
         adapter: (config || {}).adapter
       };
@@ -93,7 +83,7 @@ export const forAttachAndSchema = <C extends Collections>(options: {
       attachOptions = config;
     } else {
       const truffleDataDirectory = Config.getTruffleDataDirectory();
-      options = {
+      attachOptions = {
         directory: truffleDataDirectory,
         adapter: (config || {}).adapter
       };
