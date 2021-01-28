@@ -52,7 +52,7 @@ export const connect: (
 ) => Db = system.connect;
 
 export const serve: (
-  options: TruffleConfig | ConnectOptions | undefined
+  options?: TruffleConfig | ConnectOptions
 ) => ApolloServer = system.serve;
 
 export const { schema, attach, resources, forDb } = system;
