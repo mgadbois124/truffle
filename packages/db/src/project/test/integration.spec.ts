@@ -262,13 +262,11 @@ const AddContracts = gql`
             length
           }
         }
-        generatedSources {
-          forCallBytecode {
-            name
-          }
-          forCreateBytecode {
-            name
-          }
+        callBytecodeGeneratedSources {
+          name
+        }
+        createBytecodeGeneratedSources {
+          name
         }
       }
     }
@@ -322,19 +320,17 @@ const GetWorkspaceContract = gql`
           json
         }
       }
-      generatedSources {
-        forCallBytecode {
-          name
-          ast {
-            json
-          }
-          id
-          language
-          contents
+      callBytecodeGeneratedSources {
+        name
+        ast {
+          json
         }
-        forCreateBytecode {
-          name
-        }
+        id
+        language
+        contents
+      }
+      createBytecodeGeneratedSources {
+        name
       }
       compilation {
         compiler {
@@ -595,7 +591,9 @@ describe("Compilation", () => {
       name: "Migrations",
       abi: { json: JSON.stringify(artifacts[1].abi) },
       createBytecode: bytecodeIds[0],
-      callBytecode: callBytecodeIds[0]
+      callBytecode: callBytecodeIds[0],
+      callBytecodeGeneratedSources: [],
+      createBytecodeGeneratedSources: []
     };
 
     await db.execute(AddContracts, {
@@ -808,7 +806,7 @@ describe("Compilation", () => {
             },
             createBytecode,
             callBytecode,
-            generatedSources
+            callBytecodeGeneratedSources
           }
         }
       } = await db.execute(GetWorkspaceContract, contractIds[index]);
@@ -820,19 +818,19 @@ describe("Compilation", () => {
 
       //only test generatedSources for solc compiled contracts
       if (name !== "VyperStorage") {
-        expect(generatedSources.forCallBytecode[0].name).toEqual(
+        expect(callBytecodeGeneratedSources[0].name).toEqual(
           artifacts[index].deployedGeneratedSources[0].name
         );
-        expect(generatedSources.forCallBytecode[0].ast.json).toEqual(
+        expect(callBytecodeGeneratedSources[0].ast.json).toEqual(
           JSON.stringify(artifacts[index].deployedGeneratedSources[0].ast)
         );
-        expect(generatedSources.forCallBytecode[0].id).toEqual(
+        expect(callBytecodeGeneratedSources[0].id).toEqual(
           artifacts[index].deployedGeneratedSources[0].id
         );
-        expect(generatedSources.forCallBytecode[0].contents).toEqual(
+        expect(callBytecodeGeneratedSources[0].contents).toEqual(
           artifacts[index].deployedGeneratedSources[0].contents
         );
-        expect(generatedSources.forCallBytecode[0].language).toEqual(
+        expect(callBytecodeGeneratedSources[0].language).toEqual(
           artifacts[index].deployedGeneratedSources[0].language
         );
       }

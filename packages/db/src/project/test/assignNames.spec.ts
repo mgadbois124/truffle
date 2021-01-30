@@ -95,7 +95,9 @@ describe("Project.assignNames", () => {
       name: "A",
       abi: {
         json: "[]"
-      }
+      },
+      callBytecodeGeneratedSources: [],
+      createBytecodeGeneratedSources: []
     });
     debug("contract %o", contract);
 
@@ -120,7 +122,9 @@ describe("Project.assignNames", () => {
       name: "B",
       abi: {
         json: "[]"
-      }
+      },
+      callBytecodeGeneratedSources: [],
+      createBytecodeGeneratedSources: []
     });
 
     await project.assignNames({
@@ -149,7 +153,9 @@ describe("Project.assignNames", () => {
       name: "C",
       abi: {
         json: "[]"
-      }
+      },
+      callBytecodeGeneratedSources: [],
+      createBytecodeGeneratedSources: []
     });
     debug("first %o", first);
 
@@ -163,7 +169,9 @@ describe("Project.assignNames", () => {
       name: "C",
       abi: {
         json: `[{ type: "constructor", inputs: [] }]`
-      }
+      },
+      callBytecodeGeneratedSources: [],
+      createBytecodeGeneratedSources: []
     });
     debug("second %o", second);
 

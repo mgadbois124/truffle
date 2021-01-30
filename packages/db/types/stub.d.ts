@@ -52,7 +52,8 @@ declare namespace _DataModel {
   type CandidateSearchResult = any;
   type ImmutableReferenceInput = any;
   type GeneratedSourcesInput = any;
-  type GeneratedSources = any;
+  type CallBytecodeGeneratedSources = any;
+  type CreateBytecodeGeneratedSources = any;
 
   type Query = any;
   type Mutation = any;
