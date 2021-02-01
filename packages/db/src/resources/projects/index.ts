@@ -3,7 +3,8 @@ const debug = logger("db:resources:projects");
 
 import gql from "graphql-tag";
 
-import { Definition, IdObject, Workspace } from "./types";
+import type { Definition } from "@truffle/db/resources/types";
+import { resolveNameRecords } from "./resolveNameRecords";
 
 export const projects: Definition<"projects"> = {
   names: {
@@ -63,7 +64,7 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, { name }, { workspace }) => {
           debug("Resolving Project.network...");
 
-          const [nameRecord] = await resolve({
+          const [nameRecord] = await resolveNameRecords({
             project,
             name,
             type: "Network",
@@ -86,7 +87,7 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, _, { workspace }) => {
           debug("Resolving Project.networks...");
 
-          const nameRecords = await resolve({
+          const nameRecords = await resolveNameRecords({
             project,
             type: "Network",
             workspace
@@ -106,7 +107,7 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, { name }, { workspace }) => {
           debug("Resolving Project.contract...");
 
-          const [nameRecord] = await resolve({
+          const [nameRecord] = await resolveNameRecords({
             project,
             name,
             type: "Contract",
@@ -129,7 +130,7 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, _, { workspace }) => {
           debug("Resolving Project.contracts...");
 
-          const nameRecords = await resolve({
+          const nameRecords = await resolveNameRecords({
             project,
             type: "Contract",
             workspace
@@ -148,33 +149,3 @@ export const projects: Definition<"projects"> = {
     }
   }
 };
-
-async function resolve(options: {
-  project: IdObject<"projects">;
-  name?: string;
-  type?: string;
-  workspace: Workspace;
-}) {
-  const {
-    project: { id },
-    name,
-    type,
-    workspace
-  } = options;
-
-  const results = await workspace.find("projectNames", {
-    selector: {
-      "project.id": id,
-      "key.name": name,
-      "key.type": type
-    }
-  });
-  const nameRecordIds = results.map(({ nameRecord: { id } }) => id);
-  const nameRecords = await workspace.find("nameRecords", {
-    selector: {
-      id: { $in: nameRecordIds }
-    }
-  });
-
-  return nameRecords;
-}
