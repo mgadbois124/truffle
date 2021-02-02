@@ -5,6 +5,7 @@ import gql from "graphql-tag";
 
 import type { Definition } from "@truffle/db/resources/types";
 import { resolveNameRecords } from "./resolveNameRecords";
+import { resolveContractInstances } from "./resolveContractInstances";
 
 export const projects: Definition<"projects"> = {
   names: {
@@ -27,6 +28,11 @@ export const projects: Definition<"projects"> = {
       network(name: String!): Network
       networks: [Network]!
 
+      contractInstances(
+        contract: ResourceNameInput
+        network: ResourceNameInput
+      ): [ContractInstance]
+
       resolve(type: String, name: String): [NameRecord] # null means unknown type
     }
 
@@ -37,24 +43,10 @@ export const projects: Definition<"projects"> = {
   resolvers: {
     Project: {
       resolve: {
-        resolve: async ({ id }, { name, type }, { workspace }) => {
+        resolve: async (...args) => {
           debug("Resolving Project.resolve...");
 
-          const results = await workspace.find("projectNames", {
-            selector: {
-              "project.id": id,
-              "key.name": name,
-              "key.type": type
-            }
-          });
-
-          const nameRecordIds = results.map(({ nameRecord: { id } }) => id);
-
-          const result = await workspace.find("nameRecords", {
-            selector: {
-              id: { $in: nameRecordIds }
-            }
-          });
+          const result = await resolveNameRecords(...args);
 
           debug("Resolved Project.resolve.");
           return result;
@@ -64,12 +56,11 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, { name }, { workspace }) => {
           debug("Resolving Project.network...");
 
-          const [nameRecord] = await resolveNameRecords({
+          const [nameRecord] = await resolveNameRecords(
             project,
-            name,
-            type: "Network",
-            workspace
-          });
+            { name, type: "Network" },
+            { workspace }
+          );
 
           if (!nameRecord) {
             return;
@@ -87,11 +78,11 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, _, { workspace }) => {
           debug("Resolving Project.networks...");
 
-          const nameRecords = await resolveNameRecords({
+          const nameRecords = await resolveNameRecords(
             project,
-            type: "Network",
-            workspace
-          });
+            { type: "Network" },
+            { workspace }
+          );
 
           const resourceIds = nameRecords.map(({ resource }) => resource.id);
 
@@ -104,13 +95,10 @@ export const projects: Definition<"projects"> = {
         }
       },
       contract: {
-        resolve: async (project, { name }, { workspace }) => {
+        resolve: async (project, inputs, { workspace }) => {
           debug("Resolving Project.contract...");
 
-          const [nameRecord] = await resolveNameRecords({
-            project,
-            name,
-            type: "Contract",
+          const [nameRecord] = await resolveNameRecords(project, inputs, {
             workspace
           });
 
@@ -130,11 +118,11 @@ export const projects: Definition<"projects"> = {
         resolve: async (project, _, { workspace }) => {
           debug("Resolving Project.contracts...");
 
-          const nameRecords = await resolveNameRecords({
+          const nameRecords = await resolveNameRecords(
             project,
-            type: "Contract",
-            workspace
-          });
+            { type: "Contract" },
+            { workspace }
+          );
 
           const resourceIds = nameRecords.map(({ resource }) => resource.id);
 
@@ -143,6 +131,21 @@ export const projects: Definition<"projects"> = {
           });
 
           debug("Resolved Project.contracts.");
+          return result;
+        }
+      },
+      contractInstances: {
+        async resolve(project, inputs, context, info) {
+          debug("Resolving Project.contractInstances...");
+
+          const result = await resolveContractInstances(
+            project,
+            inputs,
+            context,
+            info
+          );
+
+          debug("Resolved Project.contractInstances.");
           return result;
         }
       }

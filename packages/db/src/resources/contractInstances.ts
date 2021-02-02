@@ -14,9 +14,7 @@ export const contractInstances: Definition<"contractInstances"> = {
     resourcesMutate: "contractInstancesAdd",
     ResourcesMutate: "ContractInstancesAdd"
   },
-  createIndexes: [
-    { fields: ["network.id"] }
-  ],
+  createIndexes: [{ fields: ["contract.id"] }, { fields: ["network.id"] }],
   idFields: ["address", "network"],
   typeDefs: gql`
     type ContractInstance implements Resource {
